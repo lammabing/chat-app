@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="https://unpkg.com/emoji-picker-element"></script>
+</head>
+
+<body>
+    <div id="login-form" class="container">
+        <h2>Join Chat Room</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="login-button">Join</button>
+    </div>
+
+    <div id="chat-container" class="container hidden">
+        <div class="user-profile">
+            <div class="avatar-container">
+                <img id="user-avatar" src="/uploads/avatars/default-avatar.png" alt="Your avatar">
+                <label for="avatar-input" class="avatar-upload-btn">Change Avatar</label>
+                <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+            </div>
+            <span id="username-display"></span>
+        </div>
+        <div id="messages"></div>
+        <div class="input-area">
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+            <label for="file-input" class="file-upload-btn">📎 Upload File</label>
+            <input type="file" id="file-input" style="display: none;">
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
