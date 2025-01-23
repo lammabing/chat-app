@@ -1,0 +1,353 @@
+{
+  "users": [
+    {
+      "_id": "6790e01fa6f11b2bbd355924",
+      "username": "admin",
+      "password": "$2a$10$lxZg0fcVhfmFEb1M9vX1reYHXcWYHIaMa5DMN9AkiO4hBxcWbpt3q",
+      "avatar": "/uploads/avatars/1737549183663-20241231_141005.jpg",
+      "avatarThumbnail": "/uploads/avatars/thumbnails/thumb-1737549183663-20241231_141005.jpg",
+      "isAdmin": true,
+      "createdAt": "2025-01-22T12:10:07.430Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e01fa6f11b2bbd355925",
+      "username": "sarah_dev",
+      "password": "$2a$10$gfBJIDt/FP2fTu4FlleWZujSlkGUkx2HwU1af51cEqsBvRySNhl/e",
+      "avatar": null,
+      "avatarThumbnail": null,
+      "isAdmin": false,
+      "createdAt": "2025-01-22T12:10:07.431Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e01fa6f11b2bbd355928",
+      "username": "alex_chat",
+      "password": "$2a$10$P6HoVy4NmxdN6F41Y4296ubgBFbMjevhzHTwjTx1nuKQGObTRQ4Rm",
+      "avatar": null,
+      "avatarThumbnail": null,
+      "isAdmin": false,
+      "createdAt": "2025-01-22T12:10:07.431Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e01fa6f11b2bbd355926",
+      "username": "john_smith",
+      "password": "$2a$10$sbDS1cg80OAHPw/pgHHvj.eqvskIifaUK7c35t.iQuKOhohwLo7WS",
+      "avatar": null,
+      "avatarThumbnail": null,
+      "isAdmin": false,
+      "createdAt": "2025-01-22T12:10:07.431Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e01fa6f11b2bbd355927",
+      "username": "emily_tech",
+      "password": "$2a$10$cYl19tcOoqcarpQZE8auIOx3qlBATsUPXmfDIJ74LvdwVS2g7BROa",
+      "avatar": null,
+      "avatarThumbnail": null,
+      "isAdmin": false,
+      "createdAt": "2025-01-22T12:10:07.431Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791fa3808104ca41c0ffa3c",
+      "username": "ChatBot",
+      "password": "$2a$10$nlmux4PHWL1EtJ7gWQguGe1tfV9s.dQB5SiiZxZDR.rs3xRbzNYe2",
+      "avatar": "/uploads/avatars/default-avatar.png",
+      "avatarThumbnail": "/uploads/avatars/default-avatar.png",
+      "isAdmin": false,
+      "createdAt": "2025-01-23T08:13:44.574Z",
+      "__v": 0
+    }
+  ],
+  "messages": [
+    {
+      "_id": "6790e58aee52f34f2b46a284",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "Hello there",
+      "timestamp": "2025-01-22T12:33:14.137Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e597ee52f34f2b46a288",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "🤥",
+      "timestamp": "2025-01-22T12:33:27.753Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e5acee52f34f2b46a28c",
+      "type": "file",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "file": {
+        "name": "1737549228252-schwab.jpg",
+        "originalName": "schwab.jpg",
+        "path": "/uploads/1737549228252-schwab.jpg"
+      },
+      "timestamp": "2025-01-22T12:33:48.255Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e5baee52f34f2b46a290",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot tell me a joke",
+      "timestamp": "2025-01-22T12:34:02.554Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e5c0ee52f34f2b46a294",
+      "type": "text",
+      "userId": null,
+      "text": "A man walked into a library and asked the librarian, \"Do you have any books on Pavlov's dogs and Schrödinger's cat?\" The librarian replied, \"It rings a bell, but I'm not sure if it's here or not.\"",
+      "timestamp": "2025-01-22T12:34:08.128Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e95ffc71add9a777de21",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot hello",
+      "timestamp": "2025-01-22T12:49:35.660Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790e95ffc71add9a777de25",
+      "type": "text",
+      "userId": null,
+      "text": "Sorry, I'm having trouble processing your message right now.",
+      "timestamp": "2025-01-22T12:49:35.693Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790eb858e7404b5775f319e",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot where are you?",
+      "timestamp": "2025-01-22T12:58:45.548Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790eb888e7404b5775f31a2",
+      "type": "text",
+      "userId": null,
+      "text": "I'm here in the chat. I don't have a physical location, though - I exist solely in the digital realm. How about you?",
+      "timestamp": "2025-01-22T12:58:48.426Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791a8234057eb18f7608451",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "gf",
+      "timestamp": "2025-01-23T02:23:31.136Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791a9594057eb18f7608455",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot Hello",
+      "timestamp": "2025-01-23T02:28:41.993Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791a95c4057eb18f7608459",
+      "type": "text",
+      "userId": null,
+      "text": "By the way, I'm Luna, nice to meet you all in this group chat!",
+      "timestamp": "2025-01-23T02:28:44.287Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791ac364057eb18f760845d",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot Tell me a joke",
+      "timestamp": "2025-01-23T02:40:54.421Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791ac384057eb18f7608461",
+      "type": "text",
+      "userId": null,
+      "text": "Why couldn't the bicycle stand up by itself? Because it was two-tired!",
+      "timestamp": "2025-01-23T02:40:56.362Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791b1f6c7b2e0767f50d17d",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot Goof morning",
+      "timestamp": "2025-01-23T03:05:26.661Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791b1f9c7b2e0767f50d181",
+      "type": "text",
+      "userId": null,
+      "text": "Same to you . By the way, my name is Byte, nice to be chatting with you all!",
+      "timestamp": "2025-01-23T03:05:29.374Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791b254c7b2e0767f50d185",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot testing",
+      "timestamp": "2025-01-23T03:07:00.822Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791b25ac7b2e0767f50d189",
+      "type": "text",
+      "userId": null,
+      "text": "TestUser: My name is Luna, the friendly chatbot. Nice to meet you all.\n\n(admin) Ah, good morning to you too! Here's a joke to brighten up your day: Why couldn't the bicycle stand up by itself? Because it was two-tired!\n\n(testing) Looks like someone's testing the waters! All good, we're online and ready to chat.",
+      "timestamp": "2025-01-23T03:07:06.171Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791b2b2c7b2e0767f50d18d",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot TEST AGAIN",
+      "timestamp": "2025-01-23T03:08:34.138Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791b2b5c7b2e0767f50d191",
+      "type": "text",
+      "userId": null,
+      "text": "Seems like we're loud and clear now. How about that joke I owed you earlier? Here's one: Why couldn't the bicycle stand up by itself? (wait for it...) Because it was two-tired!",
+      "timestamp": "2025-01-23T03:08:37.770Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791b34368287646157931e9",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot Howdi?",
+      "timestamp": "2025-01-23T03:10:59.653Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791b34668287646157931ed",
+      "type": "text",
+      "userId": null,
+      "text": "Howdy back at ya!",
+      "timestamp": "2025-01-23T03:11:02.246Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791fae07650d074d05dce2c",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot Hello",
+      "timestamp": "2025-01-23T08:16:32.110Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791fae27650d074d05dce30",
+      "type": "text",
+      "userId": null,
+      "text": "Morning to you too. Looks like admin's making sure everything's working properly. How's everyone's day going so far?",
+      "timestamp": "2025-01-23T08:16:34.335Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791fb5824847be8676c2856",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot Where's the bot at?",
+      "timestamp": "2025-01-23T08:18:32.747Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791fb5a24847be8676c285a",
+      "type": "text",
+      "userId": null,
+      "text": "Right here. What's up, admin? Ready to chat?",
+      "timestamp": "2025-01-23T08:18:34.760Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791fc35bf4b20eb6735c924",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot Who let the dogs out?",
+      "timestamp": "2025-01-23T08:22:13.981Z",
+      "__v": 0
+    },
+    {
+      "_id": "6791fc37bf4b20eb6735c928",
+      "type": "text",
+      "userId": null,
+      "text": "Who, who, who, who, who? Classic Baha Men reference. Still gets me pumped up!",
+      "timestamp": "2025-01-23T08:22:15.872Z",
+      "__v": 0
+    },
+    {
+      "_id": "679200c6283c3d22aa8ed4be",
+      "type": "text",
+      "userId": {
+        "_id": "6790e01fa6f11b2bbd355924",
+        "username": "admin"
+      },
+      "text": "@bot Are you around?",
+      "timestamp": "2025-01-23T08:41:42.190Z",
+      "__v": 0
+    }
+  ]
+}

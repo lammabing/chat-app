@@ -12,6 +12,8 @@ import MongoStore from 'connect-mongo';
 import sharp from 'sharp';
 import { User } from './models/User.js';
 import { Message } from './models/Message.js';
+import { config } from './config.js';
+import fetch from 'node-fetch';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -29,25 +31,64 @@ const thumbsDir = join(avatarsDir, 'thumbnails');
     }
 });
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/chatapp')
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('MongoDB connection error:', err));
+// Add logging for MongoDB connection
+mongoose.set('debug', true);
 
-// Session middleware with MongoDB store
-app.use(session({
+// Connect to MongoDB with more detailed logging
+console.log('Attempting to connect to MongoDB...');
+mongoose.connect('mongodb://localhost:27017/chatapp', {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+})
+    .then(() => console.log('Successfully connected to MongoDB'))
+    .catch(err =>
+    {
+        console.error('MongoDB connection error:', err);
+        console.error('MongoDB connection details:', {
+            url: 'mongodb://localhost:27017/chatapp',
+            error: err.message,
+            stack: err.stack
+        });
+    });
+
+mongoose.connection.on('error', err =>
+{
+    console.error('MongoDB connection error after initial connection:', err);
+});
+
+mongoose.connection.on('disconnected', () =>
+{
+    console.log('MongoDB disconnected');
+});
+
+// Session middleware with MongoDB store and detailed logging
+const sessionMiddleware = session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
         mongoUrl: 'mongodb://localhost:27017/chatapp',
-        collection: 'sessions'
-    })
-}));
+        collection: 'sessions',
+        ttl: 24 * 60 * 60 // Session TTL (1 day)
+    }),
+    cookie: {
+        secure: false, // Set to true if using HTTPS
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 1 day
+    }
+});
 
+app.use(sessionMiddleware);
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
+
+// Add logging middleware
+app.use((req, res, next) =>
+{
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
 
 // File upload configuration
 const storage = multer.diskStorage({
@@ -69,18 +110,39 @@ const upload = multer({
     }
 });
 
-// Login endpoint
+// Login endpoint with detailed logging
 app.post('/login', async (req, res) =>
 {
+    console.log('Login attempt:', {
+        username: req.body.username,
+        timestamp: new Date().toISOString()
+    });
+
     const { username, password } = req.body;
 
+    if (!username || !password) {
+        console.log('Login failed: Missing credentials');
+        return res.status(400).json({ error: 'Username and password are required' });
+    }
+
     try {
+        console.log('Finding user in database...');
         const user = await User.findOne({ username });
 
-        if (!user || !(await user.comparePassword(password))) {
+        if (!user) {
+            console.log('Login failed: User not found -', username);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
+        console.log('Comparing passwords...');
+        const isValidPassword = await user.comparePassword(password);
+
+        if (!isValidPassword) {
+            console.log('Login failed: Invalid password for user -', username);
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        console.log('Login successful:', username);
         req.session.userId = user._id;
         req.session.isAdmin = user.isAdmin;
 
@@ -94,7 +156,11 @@ app.post('/login', async (req, res) =>
             }
         });
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('Login error:', {
+            error: error.message,
+            stack: error.stack,
+            username
+        });
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -219,16 +285,83 @@ io.on('connection', async (socket) =>
         socket.on('chat-message', async (messageText) =>
         {
             try {
-                const message = await Message.create({
+                // Create the user's message
+                const userMessage = await Message.create({
                     type: 'text',
                     userId: userId,
                     text: messageText
                 });
 
-                const populatedMessage = await Message.findById(message._id)
+                const populatedUserMessage = await Message.findById(userMessage._id)
                     .populate('userId', 'username avatarThumbnail');
 
-                io.to('chat-room').emit('chat-message', populatedMessage);
+                io.to('chat-room').emit('chat-message', populatedUserMessage);
+
+                // Check if message mentions the bot
+                if (messageText.toLowerCase().startsWith(config.chatbot.triggerPrefix.toLowerCase())) {
+                    // Remove the bot prefix from message
+                    const botQuery = messageText.slice(config.chatbot.triggerPrefix.length).trim();
+
+                    try {
+                        // Send message to chatbot server
+                        const response = await fetch(`${config.chatbot.endpoint}/chat`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: botQuery,
+                                username: populatedUserMessage.userId.username
+                            })
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log("Chatbot Server Response:", data);
+
+                            // Fetch the ChatBot user details BEFORE creating the message
+                            const chatBotUser = await User.findById(config.chatbot.userId);
+
+                            if (!chatBotUser) {
+                                console.error("ChatBot user not found in database!");
+                                // Handle the error appropriately, perhaps by sending an error message to the chat
+                                return;
+                            }
+
+                            // Create bot's response message, using the fetched user object
+                            const botMessage = await Message.create({
+                                type: 'text',
+                                userId: chatBotUser._id,  // Use _id from the fetched user
+                                text: data.response
+                            });
+
+                            // Populate the message (this should now work correctly)
+                            const populatedBotMessage = await Message.findById(botMessage._id)
+                                .populate('userId', 'username avatarThumbnail');
+
+                            io.to('chat-room').emit('chat-message', populatedBotMessage);
+                            console.log("HERE IS THE MESSAGE " + JSON.stringify(populatedBotMessage));
+                        }
+                        else {
+                            console.error("Chatbot Server Error: ", response.status, response.statusText);
+                        }
+                    } catch (error) {
+
+                        console.error('Chatbot server error:', error);
+
+                        // Send error message from bot
+                        const errorMessage = await Message.create({
+                            type: 'text',
+                            userId: config.chatbot.userId,
+                            text: "Sorry, I'm having trouble processing your message right now."
+                        });
+
+                        const populatedErrorMessage = await Message.findById(errorMessage._id)
+                            .populate('userId', 'username avatarThumbnail');
+
+                        io.to('chat-room').emit('chat-message', populatedErrorMessage);
+                    }
+                }
             } catch (error) {
                 console.error('Message creation error:', error);
             }
@@ -246,7 +379,9 @@ io.on('connection', async (socket) =>
     }
 });
 
-server.listen(3000, () =>
+const portNumber = 3000;
+server.listen(portNumber, () =>
 {
-    console.log('Server running on port 3000');
+    console.log(`Server running on http://localhost:${portNumber}`);
 });
+

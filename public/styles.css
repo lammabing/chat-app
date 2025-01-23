@@ -69,7 +69,7 @@ body {
 }
 
 #messages {
-    height: 400px;
+    height: 100%;
     overflow-y: auto;
     border: 1px solid #ddd;
     padding: 10px;

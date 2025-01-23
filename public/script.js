@@ -9,6 +9,13 @@ document.addEventListener('DOMContentLoaded', () =>
     const loginButton = document.getElementById('login-button');
     if (loginButton) {
         loginButton.addEventListener('click', handleLogin);
+        // Add enter key support for login
+        document.getElementById('password').addEventListener('keypress', (e) =>
+        {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
     }
 
     const messageInput = document.getElementById('message-input');
@@ -164,8 +171,8 @@ function escapeRegExp(string)
 
 async function handleLogin()
 {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
 
     if (!username || !password) {
         alert('Please enter both username and password');
@@ -173,6 +180,7 @@ async function handleLogin()
     }
 
     try {
+        console.log('Attempting login for user:', username);
         const response = await fetch('/login', {
             method: 'POST',
             headers: {
@@ -181,8 +189,11 @@ async function handleLogin()
             body: JSON.stringify({ username, password })
         });
 
+        console.log('Login response status:', response.status);
         const data = await response.json();
-        if (data.success) {
+        console.log('Login response data:', data);
+
+        if (response.ok && data.success) {
             currentUser = data.user;
             document.getElementById('login-form').classList.add('hidden');
             document.getElementById('chat-container').classList.remove('hidden');
@@ -192,11 +203,13 @@ async function handleLogin()
             }
             initializeSocket(currentUser.id);
         } else {
-            alert('Login failed');
+            const errorMessage = data.error || 'Login failed';
+            console.error('Login failed:', errorMessage);
+            alert(errorMessage);
         }
     } catch (error) {
         console.error('Login error:', error);
-        alert('Login failed');
+        alert('Login failed. Please try again.');
     }
 }
 
@@ -233,9 +246,16 @@ function initializeSocket(userId)
         auth: { userId }
     });
 
+    socket.on('connect_error', (error) =>
+    {
+        console.error('Socket connection error:', error);
+        alert('Failed to connect to chat server. Please try refreshing the page.');
+    });
+
     socket.on('previous-messages', (messages) =>
     {
         messages.forEach(addMessage);
+        addSystemMessage('Welcome! You can chat with the AI bot by using @bot followed by your message. For example: "@bot tell me a joke"');
     });
 
     socket.on('chat-message', addMessage);

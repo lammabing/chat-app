@@ -31,11 +31,11 @@ The project is a real-time chat application with the following implemented featu
 5. Add channel/room management
 
 ## Immediate Tasks
-1. Test all MongoDB functionality
-2. Verify avatar upload and thumbnail generation
-3. Test admin export feature
-4. Monitor system performance
-5. Consider implementing message pagination
+1. Update documentation synchronization
+2. Verify codebase ↔ documentation alignment
+3. Resolve technical debt in file validation
+4. Enhance security documentation
+5. Audit completed vs documented features
 
 ## Related Tasks from Project Roadmap
 - Private messaging functionality

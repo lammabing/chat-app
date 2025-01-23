@@ -11,7 +11,9 @@
 │   ├── styles.css       # Stylesheet
 │   └── script.js        # Frontend JavaScript
 ├── scripts/             # Utility scripts
-│   └── generateUsers.js # Initial user generation
+│   ├── createBotUser.js # Admin user creation
+│   ├── export-collection.js # Data export utilities
+│   └── generateUsers.js # Test user generation
 ├── uploads/             # File upload directory
 │   ├── avatars/        # User avatars
 │   │   └── thumbnails/ # Avatar thumbnails
@@ -112,11 +114,13 @@
 
 ## Recent Changes
 - MongoDB integration completed
+- Admin export scripts implemented
 - User avatar system implemented
 - Session persistence added
+- File validation implemented
 - File organization improved
-- Admin features implemented
-- Documentation updated
+- Admin features documented
+- Documentation structure refined
 
 ## Current State
 - Fully functional chat application
@@ -145,3 +149,10 @@
    - File validation
    - Admin access control
    - Input sanitization
+
+4. **Testing Procedures**
+   - Regular end-to-end chat flow tests
+   - File upload validation checks
+   - Session expiration tests
+   - Cross-browser compatibility checks
+   - Performance benchmarking

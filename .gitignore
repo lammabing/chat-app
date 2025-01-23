@@ -1,6 +1,39 @@
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production
+/build
+
+# Misc
 .DS_Store
+.env
+.env.test
+.env*.local
+
+# Logs
+*.log
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local development files
+.logins
+
+# File uploads
 uploads/*
 !uploads/.gitkeep
-.env
-.logins
+
+# Editor directories
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -39,7 +39,7 @@
 - [ ] Read receipts
 - [ ] Typing indicators
 - [ ] Message search functionality
-- [ ] File type validation and virus scanning
+- [ ] Virus scanning for uploads
 - [ ] Rate limiting for messages and file uploads
 - [ ] User roles and permissions
 - [ ] Channel/Room management
