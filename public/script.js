@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () =>
 
     const fileInput = document.getElementById('file-input');
     if (fileInput) {
+        fileInput.setAttribute('accept', 'image/*,.gif');
         fileInput.addEventListener('change', (e) =>
         {
             const file = e.target.files[0];
@@ -255,7 +256,7 @@ function initializeSocket(userId)
     socket.on('previous-messages', (messages) =>
     {
         messages.forEach(addMessage);
-        addSystemMessage('Welcome! You can chat with the AI bot by using @bot followed by your message. For example: "@bot tell me a joke"');
+        addSystemMessage('Chat to AI Bot by typing @bot followed by your message. e.g. "@bot tell me a joke"');
     });
 
     socket.on('chat-message', addMessage);

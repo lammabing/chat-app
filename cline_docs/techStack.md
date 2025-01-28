@@ -88,3 +88,8 @@
    - File storage management
    - Connection pooling
    - Load balancing considerations
+
+## Deployment
+- **Containerization:** Docker with docker-compose
+- **Configuration Management:** Environment variables via config.js
+- **Dependency Management:** package.json with npm scripts
