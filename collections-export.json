@@ -1,65 +1,279 @@
 {
   "users": [
     {
-      "_id": "67941374fa367acf33162201",
+      "_id": "678f52ddce6617c9f3cdd61f",
       "username": "admin",
-      "password": "$2a$10$lCEQVF3xmSxgfDRiFWjCOe.phbBYxm9tD9dO.K7Kxr17m.mvaKqWy",
-      "avatar": null,
-      "avatarThumbnail": null,
+      "password": "$2a$10$4T0lVGXYsXhEAH3T3pmmAulT2NmTYquVYfGZVKGccV4k/Z3wXvCyG",
+      "avatar": "/uploads/avatars/1737458217987-billGates.jpg",
+      "avatarThumbnail": "/uploads/avatars/thumbnails/thumb-1737458217987-billGates.jpg",
       "isAdmin": true,
-      "createdAt": "2025-01-24T22:25:56.148Z",
+      "createdAt": "2025-01-21T07:55:09.867Z",
       "__v": 0
     },
     {
-      "_id": "67941374fa367acf33162202",
+      "_id": "678f52ddce6617c9f3cdd620",
       "username": "sarah_dev",
-      "password": "$2a$10$2BKsDeyzs62zkiQuXd/Nk.GVjvA.aEIgWauz60uyeeBceoYJXos9C",
+      "password": "$2a$10$IzFeg8km8JsrkUMpSnzTneSwHuQAyoWcE8n0/ztd9RqXhdq9j8IwC",
       "avatar": null,
       "avatarThumbnail": null,
       "isAdmin": false,
-      "createdAt": "2025-01-24T22:25:56.149Z",
+      "createdAt": "2025-01-21T07:55:09.868Z",
       "__v": 0
     },
     {
-      "_id": "67941374fa367acf33162205",
+      "_id": "678f52ddce6617c9f3cdd623",
       "username": "alex_chat",
-      "password": "$2a$10$891aMnGu7dzWTRD.80NiwuXXnJxNs.axX/27beXmkT.J4nQbF7exq",
+      "password": "$2a$10$ty6ZLLymmufNtL3DFf1xbOUUssoILTeQprH/yj9NpuuasA6of3zna",
       "avatar": null,
       "avatarThumbnail": null,
       "isAdmin": false,
-      "createdAt": "2025-01-24T22:25:56.150Z",
+      "createdAt": "2025-01-21T07:55:09.869Z",
       "__v": 0
     },
     {
-      "_id": "67941374fa367acf33162203",
+      "_id": "678f52ddce6617c9f3cdd621",
       "username": "john_smith",
-      "password": "$2a$10$Y4j3VjALlQmOw60edtxMGOZSI336G2tYmphS/gCW3yjFV83loHWay",
+      "password": "$2a$10$VJr1Fs6bmBojS3J8sLoCg.2CQWR7bz3Wa5weHo0Z68dCNPYFNXRyC",
       "avatar": null,
       "avatarThumbnail": null,
       "isAdmin": false,
-      "createdAt": "2025-01-24T22:25:56.149Z",
+      "createdAt": "2025-01-21T07:55:09.869Z",
       "__v": 0
     },
     {
-      "_id": "67941374fa367acf33162204",
+      "_id": "678f52ddce6617c9f3cdd622",
       "username": "emily_tech",
-      "password": "$2a$10$COawL8hCz2EIn369qrBb1eljB/055XsqGKaASANHFRpyQTB06CnLm",
+      "password": "$2a$10$.XRmx.klzLw3N7e/SW/F8e/GJEtCER..KAQW6Q.uRLBs3Hp3FXTbq",
       "avatar": null,
       "avatarThumbnail": null,
       "isAdmin": false,
-      "createdAt": "2025-01-24T22:25:56.149Z",
+      "createdAt": "2025-01-21T07:55:09.869Z",
       "__v": 0
     },
     {
-      "_id": "679413976f89a660eb20afba",
+      "_id": "678f8b78854cb026f4b43a95",
       "username": "ChatBot",
-      "password": "$2a$10$nEXGLa/7zbwi8oaZwXlkBeScsENiclQb95k8HyDQRJoYaCR713LiC",
+      "password": "$2a$10$AEHljObYsYCJ/4ZkZ7nCJOsyZybYFNyOsJZ6qXc.w61jWC7DypLji",
       "avatar": "/uploads/avatars/default-avatar.png",
       "avatarThumbnail": "/uploads/avatars/default-avatar.png",
       "isAdmin": false,
-      "createdAt": "2025-01-24T22:26:31.319Z",
+      "createdAt": "2025-01-21T11:56:40.709Z",
       "__v": 0
     }
   ],
-  "messages": []
+  "messages": [
+    {
+      "_id": "678f64a2b310d1be8cd6fb44",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "The rain in Spain falls mainly in the planes",
+      "timestamp": "2025-01-21T09:10:58.355Z",
+      "__v": 0
+    },
+    {
+      "_id": "678f64cab310d1be8cd6fb48",
+      "type": "file",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "file": {
+        "name": "1737450698933-davidRockefella.jpg",
+        "originalName": "davidRockefella.jpg",
+        "path": "/uploads/1737450698933-davidRockefella.jpg"
+      },
+      "timestamp": "2025-01-21T09:11:38.938Z",
+      "__v": 0
+    },
+    {
+      "_id": "678fb0735aa68c38f4282841",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot Hello",
+      "timestamp": "2025-01-21T14:34:27.044Z",
+      "__v": 0
+    },
+    {
+      "_id": "678fb0bb5aa68c38f4282845",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot tell me a joke",
+      "timestamp": "2025-01-21T14:35:39.060Z",
+      "__v": 0
+    },
+    {
+      "_id": "678ff70423c55cc4bd10be2c",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot hello",
+      "timestamp": "2025-01-21T19:35:32.469Z",
+      "__v": 0
+    },
+    {
+      "_id": "678ffaaa2b8fe33c81689e17",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot hello",
+      "timestamp": "2025-01-21T19:51:06.191Z",
+      "__v": 0
+    },
+    {
+      "_id": "678ffaaa2b8fe33c81689e1b",
+      "type": "text",
+      "userId": {
+        "_id": "678f8b78854cb026f4b43a95",
+        "username": "ChatBot"
+      },
+      "text": "Sorry, I'm having trouble processing your message right now.",
+      "timestamp": "2025-01-21T19:51:06.209Z",
+      "__v": 0
+    },
+    {
+      "_id": "679004ceebc1f66b397fae1c",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot",
+      "timestamp": "2025-01-21T20:34:22.720Z",
+      "__v": 0
+    },
+    {
+      "_id": "679004ceebc1f66b397fae20",
+      "type": "text",
+      "userId": {
+        "_id": "678f8b78854cb026f4b43a95",
+        "username": "ChatBot"
+      },
+      "text": "Sorry, I'm having trouble processing your message right now.",
+      "timestamp": "2025-01-21T20:34:22.738Z",
+      "__v": 0
+    },
+    {
+      "_id": "67900517ebc1f66b397fae24",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot hello",
+      "timestamp": "2025-01-21T20:35:35.908Z",
+      "__v": 0
+    },
+    {
+      "_id": "67900517ebc1f66b397fae28",
+      "type": "text",
+      "userId": {
+        "_id": "678f8b78854cb026f4b43a95",
+        "username": "ChatBot"
+      },
+      "text": "Sorry, I'm having trouble processing your message right now.",
+      "timestamp": "2025-01-21T20:35:35.915Z",
+      "__v": 0
+    },
+    {
+      "_id": "67905a680e7d031d668ab85e",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot hello",
+      "timestamp": "2025-01-22T02:39:36.872Z",
+      "__v": 0
+    },
+    {
+      "_id": "679077c374b91b60ea558fc4",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "sdds",
+      "timestamp": "2025-01-22T04:44:51.848Z",
+      "__v": 0
+    },
+    {
+      "_id": "679077cc74b91b60ea558fc8",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot hello",
+      "timestamp": "2025-01-22T04:45:00.469Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790a4945857d3e14698c668",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot Hello",
+      "timestamp": "2025-01-22T07:56:04.037Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790a73a5db7555e76f80433",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot Hello",
+      "timestamp": "2025-01-22T08:07:22.675Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790ac735b460a9783a3f61f",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot Is this deepseek?",
+      "timestamp": "2025-01-22T08:29:39.706Z",
+      "__v": 0
+    },
+    {
+      "_id": "6790af0d6de2a325dfcd77c2",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot How are you?",
+      "timestamp": "2025-01-22T08:40:45.455Z",
+      "__v": 0
+    },
+    {
+      "_id": "679a7aee04148400e6d5a3f0",
+      "type": "text",
+      "userId": {
+        "_id": "678f52ddce6617c9f3cdd61f",
+        "username": "admin"
+      },
+      "text": "@bot hello",
+      "timestamp": "2025-01-29T19:01:02.423Z",
+      "__v": 0
+    }
+  ]
 }

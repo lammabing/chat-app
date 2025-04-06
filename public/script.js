@@ -4,14 +4,12 @@ let emojiPicker;
 let currentUser;
 
 // Initialize all event listeners when the DOM is loaded
-document.addEventListener('DOMContentLoaded', () =>
-{
+document.addEventListener('DOMContentLoaded', () => {
     const loginButton = document.getElementById('login-button');
     if (loginButton) {
         loginButton.addEventListener('click', handleLogin);
         // Add enter key support for login
-        document.getElementById('password').addEventListener('keypress', (e) =>
-        {
+        document.getElementById('password').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 handleLogin();
             }
@@ -20,8 +18,7 @@ document.addEventListener('DOMContentLoaded', () =>
 
     const messageInput = document.getElementById('message-input');
     if (messageInput) {
-        messageInput.addEventListener('keypress', (e) =>
-        {
+        messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
             }
@@ -34,8 +31,7 @@ document.addEventListener('DOMContentLoaded', () =>
     const fileInput = document.getElementById('file-input');
     if (fileInput) {
         fileInput.setAttribute('accept', 'image/*,.gif');
-        fileInput.addEventListener('change', (e) =>
-        {
+        fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 uploadFile(file);
@@ -46,8 +42,7 @@ document.addEventListener('DOMContentLoaded', () =>
 
     const avatarInput = document.getElementById('avatar-input');
     if (avatarInput) {
-        avatarInput.addEventListener('change', (e) =>
-        {
+        avatarInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 uploadAvatar(file);
@@ -60,8 +55,7 @@ document.addEventListener('DOMContentLoaded', () =>
     initializeEmojiPicker();
 });
 
-function initializeEmojiPicker()
-{
+function initializeEmojiPicker() {
     // Create emoji picker element
     emojiPicker = document.createElement('emoji-picker');
     emojiPicker.classList.add('hidden');
@@ -78,8 +72,7 @@ function initializeEmojiPicker()
     fileUploadBtn.parentNode.insertBefore(emojiButton, fileUploadBtn);
 
     // Handle emoji selection
-    emojiPicker.addEventListener('emoji-click', event =>
-    {
+    emojiPicker.addEventListener('emoji-click', event => {
         const messageInput = document.getElementById('message-input');
         const emoji = event.detail.unicode;
         const cursorPos = messageInput.selectionStart;
@@ -95,8 +88,7 @@ function initializeEmojiPicker()
     });
 
     // Click outside to close emoji picker
-    document.addEventListener('click', (e) =>
-    {
+    document.addEventListener('click', (e) => {
         if (!e.target.closest('emoji-picker') &&
             !e.target.classList.contains('emoji-button')) {
             emojiPicker.classList.add('hidden');
@@ -104,8 +96,11 @@ function initializeEmojiPicker()
     });
 }
 
-function toggleEmojiPicker()
-{
+function stripHTML(htmlString) {
+    return htmlString.replace(/<[^>]+>/g, '');
+}
+
+function toggleEmojiPicker() {
     emojiPicker.classList.toggle('hidden');
 }
 
@@ -143,8 +138,7 @@ const emojiShortcodes = {
     ':x:': '❌'
 };
 
-function handleEmojiShortcodes(e)
-{
+function handleEmojiShortcodes(e) {
     const input = e.target;
     const text = input.value;
     let modified = false;
@@ -165,13 +159,11 @@ function handleEmojiShortcodes(e)
 }
 
 // Helper function to escape special characters in regex
-function escapeRegExp(string)
-{
+function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-async function handleLogin()
-{
+async function handleLogin() {
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
 
@@ -214,8 +206,7 @@ async function handleLogin()
     }
 }
 
-async function uploadAvatar(file)
-{
+async function uploadAvatar(file) {
     if (!file) return;
 
     const formData = new FormData();
@@ -241,40 +232,42 @@ async function uploadAvatar(file)
     }
 }
 
-function initializeSocket(userId)
-{
+function initializeSocket(userId) {
     socket = io({
         auth: { userId }
     });
 
-    socket.on('connect_error', (error) =>
-    {
+    socket.on('connect_error', (error) => {
         console.error('Socket connection error:', error);
         alert('Failed to connect to chat server. Please try refreshing the page.');
     });
 
-    socket.on('previous-messages', (messages) =>
-    {
+    socket.on('previous-messages', (messages) => {
         messages.forEach(addMessage);
-        addSystemMessage('Chat to AI Bot by typing @bot followed by your message. e.g. "@bot tell me a joke"');
     });
 
     socket.on('chat-message', addMessage);
     socket.on('file-message', addMessage);
 
-    socket.on('user-joined', (user) =>
-    {
-        addSystemMessage(`${user.username} joined the chat`);
+    // Handle user joined event
+    socket.on('user-joined', (data) => {
+        addSystemMessage(`${data.user.username} joined the chat`);
+        updateUserCount(data.userCount);
     });
 
-    socket.on('user-left', (user) =>
-    {
-        addSystemMessage(`${user.username} left the chat`);
+    // Handle user left event
+    socket.on('user-left', (data) => {
+        addSystemMessage(`${data.user.username} left the chat`);
+        updateUserCount(data.userCount);
     });
 }
 
-function addMessage(message)
-{
+// Update the user count display
+function updateUserCount(count) {
+    document.getElementById('user-count-number').textContent = count;
+}
+
+function addMessage(message) {
     const messagesDiv = document.getElementById('messages');
     const messageElement = document.createElement('div');
     messageElement.className = 'message';
@@ -298,6 +291,13 @@ function addMessage(message)
                 </div>
             `;
         }
+    } else if (message.type === 'text'){
+        // Sanitize the message text with DOMPurify
+        const sanitizedText = DOMPurify.sanitize(message.text);
+        const spokenText = stripHTML(sanitizedText);
+        console.log('Sanitized text:', sanitizedText);
+        console.log('Spoken text:', spokenText);
+        content = `<div class="text">${sanitizedText} <i class="fas fa-volume-up" onclick="speakMessage('${spokenText}')"></i></div>`;
     } else {
         content = `<div class="text">${message.text}</div>`;
     }
@@ -317,8 +317,24 @@ function addMessage(message)
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-function showFullImage(src)
-{
+function speakMessage(text) {
+    console.log('Attempting to speak message:', text);
+    // Check if browser supports speech synthesis
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+
+        // Optional: Customize voice, rate, pitch, etc.
+        // utterance.lang = 'en-US'; // Example
+
+        window.speechSynthesis.speak(utterance);
+        console.log('Speech synthesis started');
+    } else {
+        console.error('Browser does not support text-to-speech.');
+        alert('Sorry, your browser does not support text-to-speech.');
+    }
+}
+
+function showFullImage(src) {
     const modal = document.createElement('div');
     modal.className = 'image-modal';
     modal.onclick = () => document.body.removeChild(modal);
@@ -331,8 +347,7 @@ function showFullImage(src)
     document.body.appendChild(modal);
 }
 
-function addSystemMessage(text)
-{
+function addSystemMessage(text) {
     const messagesDiv = document.getElementById('messages');
     const messageElement = document.createElement('div');
     messageElement.className = 'message system';
@@ -341,8 +356,7 @@ function addSystemMessage(text)
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-function sendMessage()
-{
+function sendMessage() {
     const input = document.getElementById('message-input');
     const message = input.value.trim();
 
@@ -352,8 +366,7 @@ function sendMessage()
     }
 }
 
-async function uploadFile(file)
-{
+async function uploadFile(file) {
     if (!file) return;
 
     const formData = new FormData();

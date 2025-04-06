@@ -12,7 +12,7 @@ async function exportCollectionsToJSON()
 {
     try {
         // 1. Connect to MongoDB
-        await mongoose.connect('mongodb://localhost:27017/chatapp');
+        await mongoose.connect('mongodb://localhost:27017/chat-app');
         console.log('Connected to MongoDB');
 
         // 2. Fetch data from collections

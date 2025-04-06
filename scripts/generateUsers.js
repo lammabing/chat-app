@@ -27,13 +27,17 @@ const users = [
     {
         username: 'alex_chat',
         password: 'alex123'
+    },
+    {
+        username: 'ChatBot',
+        password: '123'
     }
 ];
 
 async function generateUsers()
 {
     try {
-        await mongoose.connect('mongodb://localhost:27017/chatapp');
+        await mongoose.connect('mongodb://localhost:27017/chat-app');
         console.log('Connected to MongoDB');
 
         // Clear existing users

@@ -27,7 +27,19 @@ const userSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    connections: [{
+        connectionId: String,
+        status: {
+            type: String,
+            enum: ['connected', 'disconnected'],
+            default: 'connected'
+        },
+        connectedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }]
 });
 
 // Hash password before saving

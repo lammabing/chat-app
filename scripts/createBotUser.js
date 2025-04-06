@@ -10,7 +10,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 async function createBotUser()
 {
     try {
-        await mongoose.connect('mongodb://localhost:27017/chatapp');
+        await mongoose.connect('mongodb://localhost:27017/chat-app');
         console.log('Connected to MongoDB');
 
         const botPassword = Math.random().toString(36).slice(-8); // Generate random password
@@ -27,7 +27,8 @@ async function createBotUser()
         // Check if bot user already exists
         const existingBot = await User.findOne({ username: botUser.username });
         if (existingBot) {
-            console.log('Bot user already exists');
+            console.log('Bot user already exists. Keys/values:');
+            console.log(existingBot);
             await mongoose.disconnect();
             return;
         }

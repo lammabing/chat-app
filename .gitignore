@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+cline_docs/
+.codebuddy/
 .pnp
 .pnp.js
 

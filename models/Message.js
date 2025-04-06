@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const messageSchema = new mongoose.Schema({
     type: {
         type: String,
-        enum: ['text', 'file'],
+        enum: ['text', 'file', 'system'],
         required: true
     },
     userId: {

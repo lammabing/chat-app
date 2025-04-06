@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Room</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <script type="module" src="https://unpkg.com/emoji-picker-element"></script>
+
+
 </head>
 
 <body>
@@ -26,6 +30,7 @@
             </div>
             <span id="username-display"></span>
         </div>
+        <div id="user-count">Users Online: <span id="user-count-number">1</span></div>
         <div id="messages"></div>
         <div class="input-area">
             <input type="text" id="message-input" placeholder="Type a message...">
@@ -34,9 +39,8 @@
             <input type="file" id="file-input" style="display: none;">
         </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.1/dist/purify.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js"></script>
-</body>
+    <script src="script.js"></script> </body>
 
 </html>

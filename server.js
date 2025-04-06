@@ -24,8 +24,7 @@ const io = new Server(server);
 const uploadsDir = join(__dirname, 'uploads');
 const avatarsDir = join(uploadsDir, 'avatars');
 const thumbsDir = join(avatarsDir, 'thumbnails');
-[uploadsDir, avatarsDir, thumbsDir].forEach(dir =>
-{
+[uploadsDir, avatarsDir, thumbsDir].forEach(dir => {
     if (!existsSync(dir)) {
         mkdirSync(dir, { recursive: true });
     }
@@ -36,28 +35,25 @@ mongoose.set('debug', true);
 
 // Connect to MongoDB with more detailed logging
 console.log('Attempting to connect to MongoDB...');
-mongoose.connect('mongodb://localhost:27017/chatapp', {
+mongoose.connect('mongodb://localhost:27017/chat-app', {
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
 })
     .then(() => console.log('Successfully connected to MongoDB'))
-    .catch(err =>
-    {
+    .catch(err => {
         console.error('MongoDB connection error:', err);
         console.error('MongoDB connection details:', {
-            url: 'mongodb://localhost:27017/chatapp',
+            url: 'mongodb://localhost:27017/chat-app',
             error: err.message,
             stack: err.stack
         });
     });
 
-mongoose.connection.on('error', err =>
-{
+mongoose.connection.on('error', err => {
     console.error('MongoDB connection error after initial connection:', err);
 });
 
-mongoose.connection.on('disconnected', () =>
-{
+mongoose.connection.on('disconnected', () => {
     console.log('MongoDB disconnected');
 });
 
@@ -67,7 +63,7 @@ const sessionMiddleware = session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017/chatapp',
+        mongoUrl: 'mongodb://localhost:27017/chat-app',
         collection: 'sessions',
         ttl: 24 * 60 * 60 // Session TTL (1 day)
     }),
@@ -84,21 +80,18 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
 // Add logging middleware
-app.use((req, res, next) =>
-{
+app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     next();
 });
 
 // File upload configuration
 const storage = multer.diskStorage({
-    destination: (req, file, cb) =>
-    {
+    destination: (req, file, cb) => {
         const isAvatar = file.fieldname === 'avatar';
         cb(null, isAvatar ? avatarsDir : uploadsDir);
     },
-    filename: (req, file, cb) =>
-    {
+    filename: (req, file, cb) => {
         cb(null, Date.now() + '-' + file.originalname);
     }
 });
@@ -108,8 +101,7 @@ const upload = multer({
     limits: {
         fileSize: 5 * 1024 * 1024 // 5MB limit
     },
-    fileFilter: (req, file, cb) =>
-    {
+    fileFilter: (req, file, cb) => {
         const allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
         if (allowedMimes.includes(file.mimetype)) {
             cb(null, true);
@@ -120,8 +112,7 @@ const upload = multer({
 });
 
 // Login endpoint with detailed logging
-app.post('/login', async (req, res) =>
-{
+app.post('/login', async (req, res) => {
     console.log('Login attempt:', {
         username: req.body.username,
         timestamp: new Date().toISOString()
@@ -175,8 +166,7 @@ app.post('/login', async (req, res) =>
 });
 
 // Avatar upload endpoint
-app.post('/upload/avatar', upload.single('avatar'), async (req, res) =>
-{
+app.post('/upload/avatar', upload.single('avatar'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
@@ -217,8 +207,7 @@ app.post('/upload/avatar', upload.single('avatar'), async (req, res) =>
 });
 
 // File upload endpoint
-app.post('/upload', upload.single('file'), async (req, res) =>
-{
+app.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
@@ -250,8 +239,7 @@ app.post('/upload', upload.single('file'), async (req, res) =>
 });
 
 // Export messages endpoint (admin only)
-app.get('/export-messages', async (req, res) =>
-{
+app.get('/export-messages', async (req, res) => {
     if (!req.session.userId || !req.session.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
     }
@@ -266,9 +254,15 @@ app.get('/export-messages', async (req, res) =>
     }
 });
 
-io.on('connection', async (socket) =>
-{
-    const userId = socket.handshake.auth.userId;
+io.use((socket, next) => {
+    // Use the existing Express session middleware
+    sessionMiddleware(socket.request, {}, next);
+});
+
+
+io.on('connection', async (socket) => {
+    const userId = socket.request.session.userId;
+    console.log(userId + ' connected')
 
     try {
         const user = await User.findById(userId).select('username avatarThumbnail');
@@ -277,7 +271,21 @@ io.on('connection', async (socket) =>
             return;
         }
 
+        // Add connection tracking
+        const connectionEntry = {
+            connectionId: socket.id,
+            status: 'connected',
+            connectedAt: new Date()
+        };
+
+        await User.findByIdAndUpdate(userId, {
+            $push: { connections: connectionEntry }
+        });
+
         socket.join('chat-room');
+
+        // Get updated user count
+        const userCount = io.sockets.adapter.rooms.get('chat-room').size;
 
         // Send previous messages
         const messages = await Message.find()
@@ -286,13 +294,10 @@ io.on('connection', async (socket) =>
             .limit(50);
         socket.emit('previous-messages', messages.reverse());
 
-        socket.broadcast.to('chat-room').emit('user-joined', {
-            username: user.username,
-            avatar: user.avatarThumbnail
-        });
+        // Broadcast user joined event to everyone EXCEPT the connecting user
+        socket.broadcast.to('chat-room').emit('user-joined', { user, userCount });
 
-        socket.on('chat-message', async (messageText) =>
-        {
+        socket.on('chat-message', async (messageText) => {
             try {
                 // Create the user's message
                 const userMessage = await Message.create({
@@ -376,11 +381,18 @@ io.on('connection', async (socket) =>
             }
         });
 
-        socket.on('disconnect', () =>
-        {
-            socket.broadcast.to('chat-room').emit('user-left', {
-                username: user.username
+        socket.on('disconnect', async () => {
+            // Update connection status
+            await User.findByIdAndUpdate(userId, {
+                $set: { 'connections.$[elem].status': 'disconnected' }
+            }, {
+                arrayFilters: [{ 'elem.connectionId': socket.id }]
             });
+
+            const userCount = io.sockets.adapter.rooms.get('chat-room')?.size || 0; 
+
+            // Broadcast user left event 
+            socket.broadcast.to('chat-room').emit('user-left', { user, userCount }); 
         });
     } catch (error) {
         console.error('Socket connection error:', error);
@@ -388,9 +400,7 @@ io.on('connection', async (socket) =>
     }
 });
 
-const portNumber = 3000;
-server.listen(portNumber, () =>
-{
+const portNumber = 3030;
+server.listen(portNumber, () => {
     console.log(`Server running on http://localhost:${portNumber}`);
 });
-
