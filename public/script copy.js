@@ -183,17 +183,8 @@ async function handleLogin() {
         });
 
         console.log('Login response status:', response.status);
-        let data;
-        try {
-            data = await response.json();
-            console.log('Login response data:', data);
-        } catch (jsonError) {
-            // If response is not JSON, get the raw text
-            const rawText = await response.text();
-            console.error('Failed to parse JSON response:', jsonError, 'Raw response:', rawText);
-            alert('Unexpected server response. Please check server logs.');
-            return;
-        }
+        const data = await response.json();
+        console.log('Login response data:', data);
 
         if (response.ok && data.success) {
             currentUser = data.user;
@@ -206,12 +197,12 @@ async function handleLogin() {
             initializeSocket(currentUser.id);
         } else {
             const errorMessage = data.error || 'Login failed';
-            console.error('Login failed:', errorMessage, 'Full response:', data);
+            console.error('Login failed:', errorMessage);
             alert(errorMessage);
         }
     } catch (error) {
         console.error('Login error:', error);
-        alert('Login failed due to a network or unexpected error. Please try again.');
+        alert('Login failed. Please try again.');
     }
 }
 
@@ -252,14 +243,11 @@ function initializeSocket(userId) {
     });
 
     socket.on('previous-messages', (messages) => {
-        const messagesDiv = document.getElementById('messages');
-        messagesDiv.innerHTML = ''; // Clear existing messages
-        messages.forEach(message => addMessage(message, false)); // Add messages, false indicates it's not a "new" incoming message
-        messagesDiv.scrollTop = 0; // Scroll to the top to show the latest of the previous messages
+        messages.forEach(addMessage);
     });
 
-    socket.on('chat-message', (message) => addMessage(message, true)); // true indicates it's a new incoming message
-    socket.on('file-message', (message) => addMessage(message, true));
+    socket.on('chat-message', addMessage);
+    socket.on('file-message', addMessage);
 
     // Handle user joined event
     socket.on('user-joined', (data) => {
@@ -279,17 +267,10 @@ function updateUserCount(count) {
     document.getElementById('user-count-number').textContent = count;
 }
 
-function addMessage(message, isNewMessage = true) {
+function addMessage(message) {
     const messagesDiv = document.getElementById('messages');
     const messageElement = document.createElement('div');
     messageElement.className = 'message';
-
-    // Add 'sent' or 'received' class for styling based on current user
-    if (currentUser && message.userId && message.userId._id === currentUser._id) {
-        messageElement.classList.add('sent');
-    } else {
-        messageElement.classList.add('received');
-    }
 
     const time = new Date(message.timestamp).toLocaleTimeString();
     let content = '';
@@ -314,34 +295,26 @@ function addMessage(message, isNewMessage = true) {
         // Sanitize the message text with DOMPurify
         const sanitizedText = DOMPurify.sanitize(message.text);
         const spokenText = stripHTML(sanitizedText);
-        // console.log('Sanitized text:', sanitizedText);
-        // console.log('Spoken text:', spokenText);
+        console.log('Sanitized text:', sanitizedText);
+        console.log('Spoken text:', spokenText);
         content = `<div class="text">${sanitizedText} <i class="fas fa-volume-up" onclick="speakMessage('${spokenText}')"></i></div>`;
-    } else { // Fallback for other types or if message.text is directly usable
-        content = `<div class="text">${DOMPurify.sanitize(message.text)}</div>`;
+    } else {
+        content = `<div class="text">${message.text}</div>`;
     }
 
-    const avatarSrc = (message.userId && message.userId.avatarThumbnail) 
-        ? (message.userId.avatarThumbnail.startsWith('http') ? message.userId.avatarThumbnail : message.userId.avatarThumbnail)
-        : '/uploads/avatars/default-avatar.png';
-
+    const avatarSrc = message.userId.avatarThumbnail || '/uploads/avatars/default-avatar.png';
 
     messageElement.innerHTML = `
-        <img class="avatar" src="${avatarSrc}" alt="${message.userId ? message.userId.username : 'System'}'s avatar">
+        <img class="avatar" src="${avatarSrc}" alt="${message.userId.username}'s avatar">
         <div class="content">
-            <span class="user">${message.userId ? message.userId.username : 'System'}</span>
+            <span class="user">${message.userId.username}</span>
             <span class="time">${time}</span>
             ${content}
         </div>
     `;
 
-    messagesDiv.prepend(messageElement); // Prepend to add to the top
-
-    // Optional: If it's a new message and you want to scroll to top only if already near top
-    // This helps if the user is scrolled down reading older messages, they won't be jumped to the top.
-    // if (isNewMessage && messagesDiv.scrollTop < 100) { // Or some other threshold, e.g., half the viewport height
-    //     messagesDiv.scrollTop = 0;
-    // }
+    messagesDiv.appendChild(messageElement);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 function speakMessage(text) {
@@ -352,6 +325,7 @@ function speakMessage(text) {
 
         // Optional: Customize voice, rate, pitch, etc.
         // utterance.lang = 'en-US'; // Example
+
         window.speechSynthesis.speak(utterance);
         console.log('Speech synthesis started');
     } else {
@@ -376,21 +350,18 @@ function showFullImage(src) {
 function addSystemMessage(text) {
     const messagesDiv = document.getElementById('messages');
     const messageElement = document.createElement('div');
-    messageElement.className = 'message system'; // Ensure 'system' class is for styling
-    
-    const contentElement = document.createElement('div');
-    contentElement.textContent = text;
-    messageElement.appendChild(contentElement);
-
-    messagesDiv.prepend(messageElement); // Prepend system messages as well
+    messageElement.className = 'message system';
+    messageElement.textContent = text;
+    messagesDiv.appendChild(messageElement);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 function sendMessage() {
     const input = document.getElementById('message-input');
-    const messageText = input.value.trim(); // Renamed to avoid conflict with 'message' object
+    const message = input.value.trim();
 
-    if (messageText && socket) {
-        socket.emit('chat-message', { text: messageText }); // Send as an object if server expects {text: ...}
+    if (message && socket) {
+        socket.emit('chat-message', message);
         input.value = '';
     }
 }
@@ -408,35 +379,14 @@ async function uploadFile(file) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: 'Upload failed with no specific error message.' }));
-            throw new Error(errorData.message || `Upload failed with status: ${response.status}`);
+            throw new Error('Upload failed');
         }
-        // No need to do anything with the response here if the server handles broadcasting the file message
     } catch (error) {
         console.error('Upload error:', error);
-        alert(`File upload failed: ${error.message}`);
+        alert('File upload failed');
     }
 }
 
-// Make functions available globally if needed by inline HTML event handlers
+// Make functions available globally
 window.showFullImage = showFullImage;
 window.sendMessage = sendMessage;
-window.speakMessage = speakMessage; // Ensure speakMessage is globally accessible if used in dynamic HTML
-
-function addMessageToChat(message) {
-    const chatContainer = document.getElementById('chat-messages');
-    const messageElement = createMessageElement(message); // however you build your message DOM
-
-    // Insert the new message at the top
-    chatContainer.insertBefore(messageElement, chatContainer.firstChild);
-}
-
-function renderMessageHistory(messages) {
-    const chatContainer = document.getElementById('chat-messages');
-    chatContainer.innerHTML = '';
-    // Render messages in the order received (newest first)
-    messages.forEach(message => {
-        const messageElement = createMessageElement(message);
-        chatContainer.appendChild(messageElement);
-    });
-}

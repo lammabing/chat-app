@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin: Change User Avatar</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Admin: Change User Avatar</h1>
+    <form id="avatarForm" enctype="multipart/form-data">
+        <label for="userId">User ID:</label>
+        <input type="text" id="userId" name="userId" required>
+        <br>
+        <label for="avatar">Select new avatar:</label>
+        <input type="file" id="avatar" name="avatar" accept="image/*" required>
+        <br>
+        <button type="submit">Update Avatar</button>
+    </form>
+    <div id="result"></div>
+    <script>
+        document.getElementById('avatarForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const userId = document.getElementById('userId').value;
+            const formData = new FormData();
+            formData.append('avatar', document.getElementById('avatar').files[0]);
+            const response = await fetch(`/admin/update-avatar/${userId}`, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
+            const result = await response.json();
+            document.getElementById('result').textContent = result.success ? 'Avatar updated!' : (result.error || 'Failed');
+        });
+    </script>
+</body>
+</html>

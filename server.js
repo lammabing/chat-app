@@ -292,92 +292,167 @@ io.on('connection', async (socket) => {
             .populate('userId', 'username avatarThumbnail')
             .sort({ timestamp: -1 })
             .limit(50);
-        socket.emit('previous-messages', messages.reverse());
+        socket.emit('previous-messages', messages);
 
         // Broadcast user joined event to everyone EXCEPT the connecting user
         socket.broadcast.to('chat-room').emit('user-joined', { user, userCount });
 
-        socket.on('chat-message', async (messageText) => {
+        socket.on('chat-message', async (data) => { // data here is an object, e.g., { text: "hello" }
+            if (!socket.request.session.userId) {
+                console.log('Chat message attempt from unauthenticated socket');
+                return socket.emit('auth-error', { message: 'Not authenticated' });
+            }
+
             try {
-                // Create the user's message
-                const userMessage = await Message.create({
+                const user = await User.findById(socket.request.session.userId);
+                if (!user) {
+                    console.log('User not found for chat message:', socket.request.session.userId);
+                    return socket.emit('error', { message: 'User not found' });
+                }
+
+                // Ensure data.text is used here, as 'data' is an object { text: "..." }
+                const newMessage = new Message({
+                    userId: user._id,
                     type: 'text',
-                    userId: userId,
-                    text: messageText
+                    text: data.text, // Make sure this is data.text, not data
+                    timestamp: new Date()
                 });
+                await newMessage.save();
 
-                const populatedUserMessage = await Message.findById(userMessage._id)
-                    .populate('userId', 'username avatarThumbnail');
+                const populatedMessage = await Message.findById(newMessage._id).populate('userId', 'username avatarThumbnail');
 
-                io.to('chat-room').emit('chat-message', populatedUserMessage);
+                const populatedMessageData = {
+                    _id: populatedMessage._id,
+                    type: populatedMessage.type,
+                    text: populatedMessage.text,
+                    userId: {
+                        _id: populatedMessage.userId._id,
+                        username: populatedMessage.userId.username,
+                        avatarThumbnail: populatedMessage.userId.avatarThumbnail
+                    },
+                    timestamp: populatedMessage.timestamp
+                };
+                io.emit('chat-message', populatedMessageData);
 
-                // Check if message mentions the bot
-                if (messageText.toLowerCase().startsWith(config.chatbot.triggerPrefix.toLowerCase())) {
-                    // Remove the bot prefix from message
-                    const botQuery = messageText.slice(config.chatbot.triggerPrefix.length).trim();
-
-                    try {
-                        // Send message to chatbot server
-                        const response = await fetch(`${config.chatbot.endpoint}/chat`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                message: botQuery,
-                                username: populatedUserMessage.userId.username
-                            })
-                        });
-
-                        if (response.ok) {
-                            const data = await response.json();
-                            console.log("Chatbot Server Response:", data);
-
-                            // Fetch the ChatBot user details BEFORE creating the message
-                            const chatBotUser = await User.findById(config.chatbot.userId);
-
-                            if (!chatBotUser) {
-                                console.error("ChatBot user not found in database!");
-                                // Handle the error appropriately, perhaps by sending an error message to the chat
-                                return;
-                            }
-
-                            // Create bot's response message, using the fetched user object
-                            const botMessage = await Message.create({
-                                type: 'text',
-                                userId: chatBotUser._id,  // Use _id from the fetched user
-                                text: data.response
+                // Chatbot integration
+                // Ensure data.text is used here as well
+                if (data.text && typeof data.text === 'string' && data.text.startsWith(config.chatbot.triggerPrefix)) {
+                    const botQuery = data.text.substring(config.chatbot.triggerPrefix.length).trim();
+                    
+                    if (botQuery) {
+                        try {
+                            console.log(`Sending to chatbot: "${botQuery}" from user ${user.username}`);
+                            const botApiResponse = await fetch(config.chatbot.endpoint, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ message: botQuery, username: user.username })
                             });
 
-                            // Populate the message (this should now work correctly)
-                            const populatedBotMessage = await Message.findById(botMessage._id)
-                                .populate('userId', 'username avatarThumbnail');
+                            console.log(`Chatbot API response status: ${botApiResponse.status}`);
+                            console.log(`Chatbot API response ok: ${botApiResponse.ok}`);
+                            console.log(`Chatbot API response headers: ${JSON.stringify(Object.fromEntries(botApiResponse.headers.entries()))}`);
+                            const rawBotResponseText = await botApiResponse.text();
+                            console.log(`Chatbot API raw response: ${rawBotResponseText}`);
+                            if (botApiResponse.ok) {
+                                let botResponseData;
+                                try {
+                                    botResponseData = JSON.parse(rawBotResponseText);
+                                } catch (jsonParseError) {
+                                    console.error('Failed to parse chatbot response as JSON:', jsonParseError);
+                                    throw new Error('Invalid JSON response from chatbot API');
+                                }
+                                const botText = botResponseData.response;
 
-                            io.to('chat-room').emit('chat-message', populatedBotMessage);
-                            console.log("HERE IS THE MESSAGE " + JSON.stringify(populatedBotMessage));
+                                if (botText) {
+                                    const botUser = await User.findById(config.chatbot.userId);
+                                    if (!botUser) {
+                                        console.error('ChatBot user not found in database with ID:', config.chatbot.userId, '. Please check config.js.');
+                                        return;
+                                    }
+
+                                    const botMessage = new Message({
+                                        userId: config.chatbot.userId,
+                                        type: 'text',
+                                        text: botText, // This should be a string from the bot
+                                        timestamp: new Date()
+                                    });
+                                    await botMessage.save();
+
+                                    const populatedBotMessage = await Message.findById(botMessage._id).populate('userId', 'username avatarThumbnail');
+                                    io.emit('chat-message', {
+                                        _id: populatedBotMessage._id,
+                                        type: populatedBotMessage.type,
+                                        text: populatedBotMessage.text,
+                                        userId: {
+                                            _id: populatedBotMessage.userId._id,
+                                            username: populatedBotMessage.userId.username,
+                                            avatarThumbnail: populatedBotMessage.userId.avatarThumbnail
+                                        },
+                                        timestamp: populatedBotMessage.timestamp
+                                    });
+                                    console.log(`Chatbot responded: "${botText}"`);
+                                } else {
+                                    console.warn('Chatbot response did not contain text:', botResponseData);
+                                }
+                            } else {
+                                const errorText = await botApiResponse.text();
+                                console.error(`Chatbot API error: ${botApiResponse.status} - ${errorText}`);
+                                const botUser = await User.findById(config.chatbot.userId);
+                                if (botUser) {
+                                    const errorMessage = new Message({
+                                        userId: config.chatbot.userId,
+                                        type: 'text',
+                                        text: "I'm currently unable to process your request. Please try again later.",
+                                        timestamp: new Date()
+                                    });
+                                    await errorMessage.save();
+                                    const populatedErrorMessage = await Message.findById(errorMessage._id).populate('userId', 'username avatarThumbnail');
+                                    io.emit('chat-message', {
+                                        _id: populatedErrorMessage._id,
+                                        type: populatedErrorMessage.type,
+                                        text: populatedErrorMessage.text,
+                                        userId: {
+                                            _id: populatedErrorMessage.userId._id,
+                                            username: populatedErrorMessage.userId.username,
+                                            avatarThumbnail: populatedErrorMessage.userId.avatarThumbnail
+                                        },
+                                        timestamp: populatedErrorMessage.timestamp
+                                    });
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error communicating with chatbot:', error);
+                            const botUser = await User.findById(config.chatbot.userId);
+                            if (botUser) {
+                                 const connectErrorMessage = new Message({
+                                    userId: config.chatbot.userId,
+                                    type: 'text',
+                                    text: "I'm having trouble connecting right now. Please try again later.",
+                                    timestamp: new Date()
+                                });
+                                await connectErrorMessage.save();
+                                const populatedConnectErrorMessage = await Message.findById(connectErrorMessage._id).populate('userId', 'username avatarThumbnail');
+                                io.emit('chat-message', {
+                                    _id: populatedConnectErrorMessage._id,
+                                    type: populatedConnectErrorMessage.type,
+                                    text: populatedConnectErrorMessage.text,
+                                    userId: {
+                                        _id: populatedConnectErrorMessage.userId._id,
+                                        username: populatedConnectErrorMessage.userId.username,
+                                        avatarThumbnail: populatedConnectErrorMessage.userId.avatarThumbnail
+                                    },
+                                    timestamp: populatedConnectErrorMessage.timestamp
+                                });
+                            }
                         }
-                        else {
-                            console.error("Chatbot Server Error: ", response.status, response.statusText);
-                        }
-                    } catch (error) {
-
-                        console.error('Chatbot server error:', error);
-
-                        // Send error message from bot
-                        const errorMessage = await Message.create({
-                            type: 'text',
-                            userId: config.chatbot.userId,
-                            text: "Sorry, I'm having trouble processing your message right now."
-                        });
-
-                        const populatedErrorMessage = await Message.findById(errorMessage._id)
-                            .populate('userId', 'username avatarThumbnail');
-
-                        io.to('chat-room').emit('chat-message', populatedErrorMessage);
                     }
                 }
+
             } catch (error) {
-                console.error('Message creation error:', error);
+                // This is where your log indicated the error was caught (around line 380)
+                console.error('Message creation error:', error); 
+                // Optionally, inform the client that their message failed to send
+                socket.emit('error', { message: 'Failed to send message. Please try again.' });
             }
         });
 
@@ -404,3 +479,53 @@ const portNumber = 3030;
 server.listen(portNumber, () => {
     console.log(`Server running on http://localhost:${portNumber}`);
 });
+
+// Admin endpoint to update any user's avatar
+app.post('/admin/update-avatar/:userId', upload.single('avatar'), async (req, res) => {
+    // Check admin session
+    if (!req.session.userId || !req.session.isAdmin) {
+        return res.status(403).json({ error: 'Admin privileges required' });
+    }
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+    const { userId } = req.params;
+    try {
+        const thumbnailFilename = `thumb-${req.file.filename}`;
+        const thumbnailPath = join(thumbsDir, thumbnailFilename);
+
+        // Create thumbnail
+        await sharp(req.file.path)
+            .resize(50, 50)
+            .jpeg({ quality: 90 })
+            .toFile(thumbnailPath);
+
+        // Update the specified user's avatar
+        const user = await User.findByIdAndUpdate(
+            userId,
+            {
+                avatar: `/uploads/avatars/${req.file.filename}`,
+                avatarThumbnail: `/uploads/avatars/thumbnails/${thumbnailFilename}`
+            },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({
+            success: true,
+            avatar: user.avatar,
+            avatarThumbnail: user.avatarThumbnail
+        });
+    } catch (error) {
+        console.error('Admin avatar update error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
+
+

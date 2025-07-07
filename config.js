@@ -1,8 +1,8 @@
 export const config = {
     chatbot: {
-        userId: "67c0a4ed0782ace1f884f75c",  // Bot's MongoDB User ID
+        userId: "686425da0d48766744c4a507",  // Bot's MongoDB User ID
         username: "ChatBot",
-        endpoint: "http://localhost:3001",    // Chatbot server endpoint
+        endpoint: "http://localhost:3210/chat",    // Chatbot server endpoint
         triggerPrefix: "@bot",                // Prefix to trigger bot responses
     },
     mongodb: {

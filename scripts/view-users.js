@@ -4,7 +4,7 @@ import { User } from '../models/User.js';
 async function viewUsers() {
     try {
         // Connect to the database
-        await mongoose.connect('mongodb://localhost:27017/your-database-name', {
+        await mongoose.connect('mongodb://localhost:27017/chat-app', {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
