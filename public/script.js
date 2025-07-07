@@ -314,8 +314,9 @@ function addMessage(message, isNewMessage = true) {
         // Sanitize the message text with DOMPurify
         const sanitizedText = DOMPurify.sanitize(message.text);
         const spokenText = stripHTML(sanitizedText);
-        // console.log('Sanitized text:', sanitizedText);
-        // console.log('Spoken text:', spokenText);
+        console.log('Message text:', message.text);
+        console.log('Sanitized text:', sanitizedText);
+        console.log('Spoken text for speech:', spokenText);
         content = `<div class="text">${sanitizedText} <i class="fas fa-volume-up" onclick="speakMessage('${spokenText}')"></i></div>`;
     } else { // Fallback for other types or if message.text is directly usable
         content = `<div class="text">${DOMPurify.sanitize(message.text)}</div>`;
